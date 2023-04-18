@@ -13,6 +13,11 @@ export const RequestUser = createParamDecorator(
   (_, context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest();
     const {authorization: accessToken} = request.headers;
+    const reflector = new Reflector();
+    const isPublic = reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     if (accessToken) {
       try {
@@ -21,15 +26,14 @@ export const RequestUser = createParamDecorator(
           secret: jwtConstants.secret,
         });
       } catch (ex) {
+        if (isPublic) {
+          return true;
+        }
+
         throw new HttpException('Token expired!', HttpStatus.UNAUTHORIZED);
       }
     }
 
-    const reflector = new Reflector();
-    const isPublic = reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
     if (isPublic) {
       return true;
     }
