@@ -26,7 +26,12 @@ export class AuthService {
       password,
       isAmbassador: false,
     });
-    return payload;
+    return {
+      ...payload,
+      token: await this.jwtService.signAsync(payload, {
+        secret: jwtConstants.secret,
+      }),
+    };
   }
 
   async login(payload: LoginDto) {
@@ -46,7 +51,7 @@ export class AuthService {
     this.checkPassword(payload.password, password);
 
     return {
-      user,
+      ...user,
       token: await this.jwtService.signAsync(user, {
         secret: jwtConstants.secret,
       }),
