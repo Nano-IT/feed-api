@@ -6,10 +6,12 @@ import {
   HttpStatus,
   ValidationPipe,
 } from '@nestjs/common';
+import {GlobalExceptionFilter} from '@/shared/filters/global-error-handler.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+  app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory: (errors) => {

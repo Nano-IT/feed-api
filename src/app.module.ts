@@ -8,6 +8,7 @@ import {ConfigModule, ConfigService} from '@nestjs/config';
 import {ProfileModule} from './profile/profile.module';
 import {ArticleCommentModule} from './article-comment/article-comment.module';
 import {TypeormConfigService} from '@/shared/services/typeorm-config.service';
+import {DataSource} from 'typeorm';
 
 @Module({
   imports: [
@@ -16,6 +17,9 @@ import {TypeormConfigService} from '@/shared/services/typeorm-config.service';
       inject: [ConfigService],
       imports: [ConfigModule],
       useClass: TypeormConfigService,
+      dataSourceFactory: async (options) => {
+        return await new DataSource(options).initialize();
+      },
     }),
     UserModule,
     AuthModule,

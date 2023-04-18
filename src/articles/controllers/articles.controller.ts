@@ -21,6 +21,7 @@ export class ArticlesController {
 
   @Post()
   create(@Body() article: CreateArticleDto, @RequestUser() user) {
+    console.log(user);
     const {title, description, body, tagList} = article;
     return this.articlesService.create(
       {title, description, body, tagList},

@@ -12,6 +12,11 @@ import {Reflector} from '@nestjs/core';
 export const RequestUser = createParamDecorator(
   (_, context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest();
+
+    if (request.user) {
+      return request.user;
+    }
+
     const {authorization: accessToken} = request.headers;
     const reflector = new Reflector();
     const isPublic = reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [

@@ -117,7 +117,7 @@ export class ArticlesService {
       tagList: article.tags.map(({name}) => name),
       author: {
         ...article.author,
-        following: article.author.followers?.some(
+        following: article.author?.followers?.some(
           (item) => item.id === currentUser?.id,
         ),
       },

@@ -1,9 +1,9 @@
 FROM node:18
 
 WORKDIR /app
+RUN npm i -g yarn
+COPY package.json .
+RUN yarn
+COPY . .
 
-COPY ../package.json .
-RUN npm i
-COPY .. .
-
-CMD npm run dev
+CMD yarn dev
