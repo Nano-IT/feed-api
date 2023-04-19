@@ -11,8 +11,8 @@ import {Exclude} from 'class-transformer';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn({type: 'bigint'})
+  id: bigint;
 
   @Column({unique: true})
   email: string;
@@ -30,17 +30,18 @@ export class User {
   @Column({nullable: true})
   image: string | null;
 
+  @Exclude()
   @CreateDateColumn()
   createdAt: string;
 
+  @Exclude()
   @UpdateDateColumn()
   updatedAt: string;
 
-  @ManyToMany(() => User)
+  @ManyToMany(() => User, {createForeignKeyConstraints: false})
   @JoinTable({
     name: 'user_follower',
     inverseJoinColumn: {
-      foreignKeyConstraintName: 'followerId',
       referencedColumnName: 'id',
       name: 'followerId',
     },

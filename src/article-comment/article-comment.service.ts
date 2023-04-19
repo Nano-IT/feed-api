@@ -3,8 +3,9 @@ import {CreateArticleCommentDto} from './dto/create-article-comment.dto';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Repository} from 'typeorm';
 import {ArticleComment} from './entities/article-comment.entity';
-import {User} from '@/user/entities/user.entity';
 import {ArticlesService} from '@/articles/services/articles.service';
+import {ArticleCommentResponseDto} from '@/article-comment/dto/article-comment-response.dto';
+import {ClsService} from 'nestjs-cls';
 
 @Injectable()
 export class ArticleCommentService {
@@ -12,16 +13,14 @@ export class ArticleCommentService {
     @InjectRepository(ArticleComment)
     private articleCommentRepository: Repository<ArticleComment>,
     private articleService: ArticlesService,
+    private cls: ClsService,
   ) {}
-  async create(
-    slug,
-    createArticleCommentDto: CreateArticleCommentDto,
-    user: User,
-  ) {
+  async create(slug, createArticleCommentDto: CreateArticleCommentDto) {
+    const user = this.cls.get('user');
     const comment = this.articleCommentRepository.create(
       createArticleCommentDto,
     );
-    comment.article = await this.articleService.findOne(slug, user);
+    comment.article = await this.articleService.findOne(slug);
     comment.author = user;
 
     return this.articleCommentRepository.save(comment);
@@ -35,11 +34,12 @@ export class ArticleCommentService {
   }
 
   async getArticleComments(slug: string) {
-    return await this.articleCommentRepository.find({
+    const articleComments = await this.articleCommentRepository.find({
       where: {article: {slug}},
       relations: {
         author: true,
       },
     });
+    return articleComments.map((item) => new ArticleCommentResponseDto(item));
   }
 }

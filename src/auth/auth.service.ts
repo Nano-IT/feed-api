@@ -8,8 +8,8 @@ import {LoginDto} from './dto/login.dto';
 import {RegisterDto} from './dto/register.dto';
 import {UserService} from '@/user/user.service';
 import {HashService} from '@/shared/services/hash.service';
-import {JwtService} from '@nestjs/jwt';
-import {jwtConstants} from './consts/jwtConstants';
+import {RegisterResponseDto} from '@/auth/dto/register-response.dto';
+import {JwtService} from '@/auth/services/jwt.service';
 
 @Injectable()
 export class AuthService {
@@ -21,17 +21,13 @@ export class AuthService {
 
   async register(payload: RegisterDto) {
     const password = this.hashService.hash(payload.password);
-    await this.userService.save({
+    const saved = await this.userService.save({
       ...payload,
       password,
       isAmbassador: false,
     });
-    return {
-      ...payload,
-      token: await this.jwtService.signAsync(payload, {
-        secret: jwtConstants.secret,
-      }),
-    };
+    const token = await this.jwtService.signAsync(payload);
+    return new RegisterResponseDto({...saved, token});
   }
 
   async login(payload: LoginDto) {
@@ -40,10 +36,7 @@ export class AuthService {
     });
 
     if (!response) {
-      throw new HttpException(
-        {errors: {user: ['User not found']}},
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
     }
 
     const {password, ...user} = response;
@@ -52,9 +45,7 @@ export class AuthService {
 
     return {
       ...user,
-      token: await this.jwtService.signAsync(user, {
-        secret: jwtConstants.secret,
-      }),
+      token: await this.jwtService.signAsync({id: user.id}),
     };
   }
 
@@ -75,7 +66,6 @@ export class AuthService {
   async parseUserFromJwt(token) {
     return await this.jwtService.verifyAsync(
       token.replace('Bearer', '').trim(),
-      {secret: jwtConstants.secret},
     );
   }
 

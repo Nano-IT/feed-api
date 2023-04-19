@@ -17,8 +17,8 @@ export class Article {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({type: 'int', nullable: true})
-  authorId: number;
+  @Column({type: 'bigint', nullable: false})
+  authorId: bigint;
 
   @ManyToOne(() => User)
   @JoinColumn({name: 'authorId'})

@@ -5,9 +5,10 @@ import {Article} from '@/articles/entities/article.entity';
 import {Repository} from 'typeorm';
 import {UtilsService} from '@/shared/services/utils.service';
 import {CreateArticleDto} from '@/articles/dto/create-article.dto';
-import {User} from '@/user/entities/user.entity';
 import {Tag} from '@/tags/entities/tag.entity';
 import {TagsService} from '@/tags/tags.service';
+import {ArticleResponseDto} from '@/articles/dto/article-response.dto';
+import {ClsService} from 'nestjs-cls';
 
 @Injectable()
 export class ArticlesService {
@@ -15,24 +16,24 @@ export class ArticlesService {
     @InjectRepository(Article) private articleRepository: Repository<Article>,
     private utilsService: UtilsService,
     private tagsService: TagsService,
+    private cls: ClsService,
   ) {}
 
-  async create(createArticleDto: CreateArticleDto, user) {
+  async create(createArticleDto: CreateArticleDto) {
+    const currentUser = this.cls.get('user');
     const slug = this.utilsService.createSlug(createArticleDto.title);
     const created = await this.articleRepository.create({
       ...createArticleDto,
       slug,
     });
-    created.author = user;
-    return this.articleRepository.save(created);
+    created.authorId = currentUser.id;
+    const response = await this.articleRepository.save(created);
+    return await this.findOne(response.slug);
   }
 
-  async findAll(
-    {skip, take, favorited, author, tag = ''},
-    currentUser,
-    feed = false,
-  ) {
+  async findAll({skip, take, favorited, author, tag = ''}, feed = false) {
     let where = {};
+    const currentUser = this.cls.get('user');
 
     if (favorited) {
       where = {
@@ -70,6 +71,7 @@ export class ArticlesService {
         },
       };
     }
+
     const [articles, articlesCount] = await this.articleRepository.findAndCount(
       {
         skip,
@@ -87,18 +89,12 @@ export class ArticlesService {
     );
 
     return {
-      articles: articles.map((item) => {
-        return {
-          ...item,
-          favorited: item.users.some((item) => item.id === currentUser?.id),
-          favoritesCount: item.users.length,
-        };
-      }),
+      articles: articles.map((item) => new ArticleResponseDto(item)),
       articlesCount,
     };
   }
 
-  async findOne(slug: string, currentUser: User) {
+  async findOne(slug: string) {
     const article = await this.articleRepository.findOneOrFail({
       where: {slug},
       relations: {
@@ -110,18 +106,7 @@ export class ArticlesService {
       },
     });
 
-    return {
-      ...article,
-      favorited: article.users.some((item) => item.id === currentUser?.id),
-      favoritesCount: article.users.length,
-      tagList: article.tags.map(({name}) => name),
-      author: {
-        ...article.author,
-        following: article.author?.followers?.some(
-          (item) => item.id === currentUser?.id,
-        ),
-      },
-    };
+    return new ArticleResponseDto(article);
   }
 
   async update(slug: string, article: UpdateArticleDto) {
@@ -146,10 +131,7 @@ export class ArticlesService {
     }
 
     await this.articleRepository.save(foundedArticle);
-    return {
-      ...foundedArticle,
-      tagList: foundedArticle.tags.map(({name}) => name),
-    };
+    return new ArticleResponseDto(foundedArticle);
   }
 
   async remove(slug: string) {

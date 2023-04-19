@@ -1,12 +1,12 @@
 import {Injectable} from '@nestjs/common';
 import {UserService} from '@/user/user.service';
-import {User} from '@/user/entities/user.entity';
+import {ClsService} from 'nestjs-cls';
 
 @Injectable()
 export class ProfileService {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private cls: ClsService) {}
 
-  async getProfile(username: string, currentUser: User) {
+  async getProfile(username: string) {
     const user = await this.userService.findOne({
       where: {username},
       relations: {
@@ -14,25 +14,32 @@ export class ProfileService {
       },
     });
 
+    const currentUser = this.cls.get('user');
+
     if (currentUser.username !== username) {
       return {
         ...user,
-        following: user.followers.some((item) => item.id === currentUser.id),
+        following: user.followers.some(
+          (item) => item.username === currentUser.username,
+        ),
       };
     }
 
     return user;
   }
-  async updateProfile(body: any, currentUser: User) {
+
+  async updateProfile(body: any) {
+    const currentUser = this.cls.get('user');
     const {username, email, bio} = body;
-    return await this.userService.update(currentUser.id, {
+    return await this.userService.update(currentUser.username, {
       username,
       email,
       bio,
     });
   }
 
-  getCurrentUser(currentUser) {
-    return this.userService.findOneBy({id: currentUser.id});
+  getCurrentUser() {
+    const currentUser = this.cls.get('user');
+    return this.userService.findOneBy({username: currentUser.username});
   }
 }

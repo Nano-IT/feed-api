@@ -1,7 +1,6 @@
 import {Controller, Get, Post, Body, Param, Delete} from '@nestjs/common';
 import {ArticleCommentService} from './article-comment.service';
 import {CreateArticleCommentDto} from './dto/create-article-comment.dto';
-import {RequestUser} from '@/shared/decorators/request-user.decorator';
 
 @Controller('articles/:slug')
 export class ArticleCommentController {
@@ -16,9 +15,8 @@ export class ArticleCommentController {
   createArticleComments(
     @Param('slug') slug: string,
     @Body() body: CreateArticleCommentDto,
-    @RequestUser() user,
   ) {
-    return this.articlesCommentService.create(slug, body, user);
+    return this.articlesCommentService.create(slug, body);
   }
 
   @Delete('comments/:id')

@@ -1,5 +1,4 @@
 import {Controller, Post, Param, Delete} from '@nestjs/common';
-import {RequestUser} from '@/shared/decorators/request-user.decorator';
 import {ArticleFavoriteService} from '@/articles/services/article-favorite.service';
 
 @Controller('articles/:slug/favorite')
@@ -9,12 +8,12 @@ export class ArticleFavoriteController {
   ) {}
 
   @Post()
-  addFavorite(@Param('slug') slug: string, @RequestUser() user) {
-    return this.articlesFavoriteService.addFavoriteArticle(slug, user);
+  addFavorite(@Param('slug') slug: string) {
+    return this.articlesFavoriteService.addFavoriteArticle(slug);
   }
 
   @Delete()
-  removeFavorite(@Param('slug') slug: string, @RequestUser() user) {
-    return this.articlesFavoriteService.removeFromFavorites(slug, user);
+  removeFavorite(@Param('slug') slug: string) {
+    return this.articlesFavoriteService.removeFromFavorites(slug);
   }
 }
