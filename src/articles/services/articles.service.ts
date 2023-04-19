@@ -4,7 +4,6 @@ import {InjectRepository} from '@nestjs/typeorm';
 import {Article} from '@/articles/entities/article.entity';
 import {Repository} from 'typeorm';
 import {UtilsService} from '@/shared/services/utils.service';
-import {CreateArticleDto} from '@/articles/dto/create-article.dto';
 import {Tag} from '@/tags/entities/tag.entity';
 import {TagsService} from '@/tags/tags.service';
 import {ArticleResponseDto} from '@/articles/dto/article-response.dto';
@@ -19,7 +18,7 @@ export class ArticlesService {
     private cls: ClsService,
   ) {}
 
-  async create(createArticleDto: CreateArticleDto) {
+  async create(createArticleDto: Article) {
     const currentUser = this.cls.get('user');
     const slug = this.utilsService.createSlug(createArticleDto.title);
     const created = await this.articleRepository.create({
@@ -87,7 +86,6 @@ export class ArticlesService {
         },
       },
     );
-
     return {
       articles: articles.map((item) => new ArticleResponseDto(item)),
       articlesCount,
@@ -105,7 +103,6 @@ export class ArticlesService {
         tags: true,
       },
     });
-
     return new ArticleResponseDto(article);
   }
 

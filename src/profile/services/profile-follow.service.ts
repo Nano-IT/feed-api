@@ -1,6 +1,5 @@
 import {Injectable} from '@nestjs/common';
 import {UserService} from '@/user/user.service';
-import {User} from '@/user/entities/user.entity';
 import {ClsService} from 'nestjs-cls';
 
 @Injectable()
@@ -14,10 +13,8 @@ export class ProfileFollowService {
         followers: true,
       },
     });
-    const follower = new User();
     const currentUser = this.cls.get('user');
-    follower.username = currentUser.username;
-    user.followers.push(follower);
+    user.followers.push(currentUser);
     await this.userService.save(user);
     return {};
   }

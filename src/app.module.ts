@@ -10,7 +10,7 @@ import {ArticleCommentModule} from './article-comment/article-comment.module';
 import {TypeormConfigService} from '@/shared/services/typeorm-config.service';
 import {DataSource} from 'typeorm';
 import {AsyncLocalStorage} from 'async_hooks';
-import {ClsGuard, ClsModule, ClsService} from 'nestjs-cls';
+import {ClsGuard, ClsModule} from 'nestjs-cls';
 import {APP_GUARD} from '@nestjs/core';
 
 @Module({
@@ -45,7 +45,6 @@ import {APP_GUARD} from '@nestjs/core';
       provide: APP_GUARD,
       useClass: ClsGuard,
     },
-    ClsService,
   ],
   exports: [AsyncLocalStorage],
 })

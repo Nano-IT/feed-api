@@ -1,6 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {UserService} from '@/user/user.service';
 import {ClsService} from 'nestjs-cls';
+import {CurrentUserDto} from '@/user/dto/current-user.dto';
 
 @Injectable()
 export class ProfileService {
@@ -14,18 +15,7 @@ export class ProfileService {
       },
     });
 
-    const currentUser = this.cls.get('user');
-
-    if (currentUser.username !== username) {
-      return {
-        ...user,
-        following: user.followers.some(
-          (item) => item.username === currentUser.username,
-        ),
-      };
-    }
-
-    return user;
+    return new CurrentUserDto(user);
   }
 
   async updateProfile(body: any) {

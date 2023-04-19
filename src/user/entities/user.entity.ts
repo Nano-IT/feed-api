@@ -7,7 +7,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import {Exclude} from 'class-transformer';
+import {Exclude, Expose, Transform} from 'class-transformer';
+import {ClsServiceManager} from 'nestjs-cls';
 
 @Entity()
 export class User {
@@ -38,6 +39,7 @@ export class User {
   @UpdateDateColumn()
   updatedAt: string;
 
+  @Exclude()
   @ManyToMany(() => User, {createForeignKeyConstraints: false})
   @JoinTable({
     name: 'user_follower',
@@ -47,4 +49,12 @@ export class User {
     },
   })
   followers: User[];
+
+  @Expose()
+  @Transform(({obj}) => {
+    const cls = ClsServiceManager.getClsService();
+    const currentUser = cls.get('user');
+    return obj.followers?.some((item) => item.id === currentUser?.id);
+  })
+  following: boolean;
 }

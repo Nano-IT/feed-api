@@ -11,7 +11,6 @@ import {
 import {ArticlesService} from '@/articles/services/articles.service';
 import {CreateArticleDto} from '@/articles/dto/create-article.dto';
 import {UpdateArticleDto} from '@/articles/dto/update-article.dto';
-import {Public} from '@/shared/decorators/public';
 
 @Controller('articles')
 export class ArticlesController {
@@ -23,7 +22,6 @@ export class ArticlesController {
     return this.articlesService.create({title, description, body, tagList});
   }
 
-  @Public()
   @Get()
   findAll(
     @Query('limit') take = 10,
@@ -45,7 +43,6 @@ export class ArticlesController {
     return this.articlesService.findAll({take, skip, author, favorited}, true);
   }
 
-  @Public()
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.articlesService.findOne(slug);

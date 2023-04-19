@@ -5,7 +5,6 @@ import {HashService} from '@/shared/services/hash.service';
 import {InjectRepository} from '@nestjs/typeorm';
 import {User} from './entities/user.entity';
 import {Repository} from 'typeorm';
-import {CurrentUserDto} from '@/user/dto/current-user.dto';
 
 @Injectable()
 export class UserService {
@@ -33,15 +32,5 @@ export class UserService {
   async update(username: string, updateUserDto: UpdateUserDto) {
     await this.userRepository.update({username}, updateUserDto);
     return await this.userRepository.findOneBy({username});
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
-
-  async getCurrentUser(id: bigint) {
-    const user = await this.userRepository.findOneByOrFail({id});
-
-    return new CurrentUserDto(user);
   }
 }

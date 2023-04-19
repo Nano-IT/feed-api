@@ -11,6 +11,8 @@ import {
 } from 'typeorm';
 import {User} from '@/user/entities/user.entity';
 import {Tag} from '@/tags/entities/tag.entity';
+import {Exclude, Expose, Transform} from 'class-transformer';
+import {ClsServiceManager} from 'nestjs-cls';
 
 @Entity()
 export class Article {
@@ -20,6 +22,14 @@ export class Article {
   @Column({type: 'bigint', nullable: false})
   authorId: bigint;
 
+  @Transform((data) => {
+    const cls = ClsServiceManager.getClsService();
+    const currentUser = cls.get('user');
+    const following = data.value.followers?.some(
+      (item) => item.username === currentUser?.username,
+    );
+    return {...data.value, following};
+  })
   @ManyToOne(() => User)
   @JoinColumn({name: 'authorId'})
   author: User;
@@ -36,12 +46,15 @@ export class Article {
   @Column({unique: true})
   title: string;
 
+  @Exclude()
   @CreateDateColumn()
   createdAt: string;
 
+  @Exclude()
   @UpdateDateColumn()
   updatedAt: string;
 
+  @Exclude()
   @ManyToMany(() => User)
   @JoinTable({
     name: 'article_like',
@@ -52,6 +65,7 @@ export class Article {
   })
   users?: User[];
 
+  @Exclude()
   @ManyToMany(() => Tag, {createForeignKeyConstraints: false})
   @JoinTable({
     name: 'article_tag',
@@ -61,4 +75,21 @@ export class Article {
     },
   })
   tags?: Tag[];
+
+  @Expose()
+  get favorited(): boolean {
+    const cls = ClsServiceManager.getClsService();
+    const currentUser = cls.get('user');
+    return this.users.some((item) => item.id === currentUser?.id);
+  }
+
+  @Expose()
+  get favoritesCount(): number {
+    return this.users.length;
+  }
+
+  @Expose()
+  get tagList(): string[] {
+    return this.tags.map((tag) => tag.name);
+  }
 }

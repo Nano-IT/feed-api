@@ -4,6 +4,7 @@ import {ClassSerializerInterceptor, ValidationPipe} from '@nestjs/common';
 import {GlobalExceptionFilter} from '@/shared/filters/global-error-handler.filter';
 import {ValidationExceptionFilter} from '@/shared/filters/validation.filter';
 import {ValidationException} from '@/shared/exceptions/validation.exception';
+import {ClsMiddleware} from 'nestjs-cls';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,6 +22,11 @@ async function bootstrap() {
     origin: '*',
   });
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.use(
+    new ClsMiddleware({
+      /* useEnterWith: true */
+    }).use,
+  );
   await app.listen(3000);
 }
 bootstrap();
