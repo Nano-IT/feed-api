@@ -90,6 +90,6 @@ export class Article {
 
   @Expose()
   get tagList(): string[] {
-    return this.tags.map((tag) => tag.name);
+    return this.tags?.map((tag) => tag.name);
   }
 }

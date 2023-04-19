@@ -17,9 +17,9 @@ export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
   @Post()
-  create(@Body() article: CreateArticleDto) {
+  create(@Body() article: CreateArticleDto & {tagList: string}) {
     const {title, description, body, tagList} = article;
-    return this.articlesService.create({title, description, body, tagList});
+    return this.articlesService.create({title, description, body}, tagList);
   }
 
   @Get()
@@ -51,9 +51,10 @@ export class ArticlesController {
   @Put(':slug')
   update(
     @Param('slug') slug: string,
-    @Body() updateArticleDto: UpdateArticleDto,
+    @Body() body: UpdateArticleDto & {tagList: string},
   ) {
-    return this.articlesService.update(slug, updateArticleDto);
+    const {tagList, ...payload} = body;
+    return this.articlesService.update(slug, payload, tagList);
   }
 
   @Delete(':slug')

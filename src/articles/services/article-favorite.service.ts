@@ -3,7 +3,6 @@ import {InjectRepository} from '@nestjs/typeorm';
 import {Article} from '@/articles/entities/article.entity';
 import {Repository} from 'typeorm';
 import {ClsService} from 'nestjs-cls';
-import {ArticleResponseDto} from '@/articles/dto/article-response.dto';
 
 @Injectable()
 export class ArticleFavoriteService {
@@ -25,8 +24,7 @@ export class ArticleFavoriteService {
     if (!article.users.some((item) => item.id === currentUser.id)) {
       article.users.push(currentUser);
     }
-    await this.articleRepository.save(article);
-    return new ArticleResponseDto(article);
+    return await this.articleRepository.save(article);
   }
 
   async removeFromFavorites(slug: string) {
@@ -38,7 +36,6 @@ export class ArticleFavoriteService {
     });
     const currentUser = this.clsService.get('user');
     article.users = article.users.filter((item) => item.id !== currentUser.id);
-    await this.articleRepository.save(article);
-    return new ArticleResponseDto(article);
+    return await this.articleRepository.save(article);
   }
 }
