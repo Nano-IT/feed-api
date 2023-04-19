@@ -21,16 +21,15 @@ export class UserIpInterceptor implements NestInterceptor {
     context: ExecutionContext,
     next: CallHandler,
   ): Promise<Observable<any>> {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       const request = context.switchToHttp().getRequest();
       const token = request.header('authorization');
 
       if (token) {
-        const {id} = this.jwtService.verify(token);
-        this.userService.getCurrentUser(id).then((user) => {
-          this.cls.set('user', user);
-          resolve(next.handle());
-        });
+        const {id} = await this.jwtService.verifyAsync(token);
+        const user = await this.userService.getCurrentUser(id);
+        this.cls.set('user', user);
+        resolve(next.handle());
       }
     });
   }

@@ -19,10 +19,4 @@ export class JwtService {
       secret: this.configService.getOrThrow('JWT_SECRET'),
     });
   }
-
-  verify(token: string) {
-    return this.jwtService.verify(token.replace('Bearer', '').trim(), {
-      secret: this.configService.getOrThrow('JWT_SECRET'),
-    });
-  }
 }
