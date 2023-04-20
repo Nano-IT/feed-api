@@ -34,10 +34,10 @@ export class Article {
   @JoinColumn({name: 'authorId'})
   author: User;
 
-  @Column()
+  @Column({type: 'text'})
   body: string;
 
-  @Column()
+  @Column({type: 'varchar'})
   description: string;
 
   @Column({unique: true})
