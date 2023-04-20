@@ -125,6 +125,14 @@ export class ArticlesService {
       foundedArticle.slug = this.utilsService.createSlug(article.title);
     }
 
+    if (article.body) {
+      foundedArticle.body = article.body;
+    }
+
+    if (article.description) {
+      foundedArticle.description = article.description;
+    }
+
     if (tagList) {
       foundedArticle.tags = await this.updateTags(tagList);
     }
