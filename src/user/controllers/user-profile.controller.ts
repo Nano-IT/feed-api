@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import {GROUP_USER_PROFILE} from '@/user/consts';
 import {UserProfileService} from '@/user/services/user-profile.service';
+import {Public} from '@/shared/decorators/public';
 
 @Controller('profiles')
 export class UserProfileController {
@@ -33,6 +34,7 @@ export class UserProfileController {
   @SerializeOptions({
     groups: [GROUP_USER_PROFILE],
   })
+  @Public()
   getUserUser(@Param('slug') slug: string) {
     return this.profileService.getProfile(slug);
   }
