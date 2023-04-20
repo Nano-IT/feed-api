@@ -13,8 +13,8 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  save(payload: CreateUserDto) {
-    return this.userRepository.save(payload);
+  async save(payload: CreateUserDto) {
+    return await this.userRepository.save(payload);
   }
 
   findAll() {

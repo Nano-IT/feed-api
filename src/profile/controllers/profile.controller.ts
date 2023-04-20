@@ -1,11 +1,22 @@
-import {Controller, Param, Get, Put, Body} from '@nestjs/common';
-import {ProfileService} from '../services/profile.service';
+import {
+  Controller,
+  Param,
+  Get,
+  Put,
+  Body,
+  SerializeOptions,
+} from '@nestjs/common';
+import {GROUP_USER_PROFILE} from '@/user/consts';
+import {ProfileService} from '@/profile/services/profile.service';
 
 @Controller('profiles')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get('me')
+  @SerializeOptions({
+    groups: [GROUP_USER_PROFILE],
+  })
   getCurrentUser() {
     return this.profileService.getCurrentUser();
   }
@@ -16,6 +27,9 @@ export class ProfileController {
   }
 
   @Get(':slug')
+  @SerializeOptions({
+    groups: [GROUP_USER_PROFILE],
+  })
   getUserUser(@Param('slug') slug: string) {
     return this.profileService.getProfile(slug);
   }

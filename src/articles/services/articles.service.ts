@@ -137,8 +137,7 @@ export class ArticlesService {
       foundedArticle.tags = await this.updateTags(tagList);
     }
 
-    await this.articleRepository.save(foundedArticle);
-    return foundedArticle;
+    return await this.articleRepository.save(foundedArticle);
   }
 
   async remove(slug: string) {

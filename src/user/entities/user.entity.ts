@@ -9,37 +9,43 @@ import {
 } from 'typeorm';
 import {Exclude, Expose, Transform} from 'class-transformer';
 import {ClsServiceManager} from 'nestjs-cls';
+import {GROUP_ALL_USERS, GROUP_USER, GROUP_USER_PROFILE} from '@/user/consts';
 
 @Entity()
 export class User {
+  @Exclude({toPlainOnly: true})
   @PrimaryGeneratedColumn({type: 'bigint'})
   id: bigint;
 
+  @Expose({groups: [GROUP_USER, GROUP_ALL_USERS, GROUP_USER_PROFILE]})
   @Column({unique: true})
   email: string;
 
-  @Exclude()
+  @Exclude({toPlainOnly: true})
   @Column()
   password: string;
 
+  @Expose({groups: [GROUP_USER, GROUP_ALL_USERS, GROUP_USER_PROFILE]})
   @Column()
   username: string;
 
+  @Expose({groups: [GROUP_USER, GROUP_ALL_USERS, GROUP_USER_PROFILE]})
   @Column({nullable: true})
   bio: string | null;
 
+  @Expose({groups: [GROUP_USER, GROUP_ALL_USERS, GROUP_USER_PROFILE]})
   @Column({nullable: true})
   image: string | null;
 
-  @Exclude()
+  @Expose({groups: [GROUP_USER, GROUP_ALL_USERS]})
   @CreateDateColumn()
   createdAt: string;
 
-  @Exclude()
+  @Expose({groups: [GROUP_USER, GROUP_ALL_USERS]})
   @UpdateDateColumn()
   updatedAt: string;
 
-  @Exclude()
+  @Expose({groups: [GROUP_USER]})
   @ManyToMany(() => User, {createForeignKeyConstraints: false})
   @JoinTable({
     name: 'user_follower',
@@ -50,7 +56,7 @@ export class User {
   })
   followers: User[];
 
-  @Expose()
+  @Expose({groups: [GROUP_USER, GROUP_ALL_USERS, GROUP_USER_PROFILE]})
   @Transform(({obj}) => {
     const cls = ClsServiceManager.getClsService();
     const currentUser = cls.get('user');

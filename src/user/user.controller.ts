@@ -1,7 +1,16 @@
-import {Controller, Get, Post, Body, Patch, Param} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  SerializeOptions,
+} from '@nestjs/common';
 import {UserService} from './user.service';
 import {CreateUserDto} from './dto/create-user.dto';
 import {UpdateUserDto} from './dto/update-user.dto';
+import {GROUP_ALL_USERS, GROUP_USER} from '@/user/consts';
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -12,13 +21,19 @@ export class UserController {
   }
 
   @Get()
+  @SerializeOptions({
+    groups: [GROUP_ALL_USERS],
+  })
   findAll() {
     return this.userService.findAll();
   }
 
   @Get(':id')
+  @SerializeOptions({
+    groups: [GROUP_USER],
+  })
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+    return this.userService.findOneBy({id});
   }
 
   @Patch(':username')

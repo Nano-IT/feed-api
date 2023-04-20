@@ -11,17 +11,23 @@ import {
 } from 'typeorm';
 import {User} from '@/user/entities/user.entity';
 import {Tag} from '@/tags/entities/tag.entity';
-import {Exclude, Expose, Transform} from 'class-transformer';
+import {Exclude, Expose, Transform, Type} from 'class-transformer';
 import {ClsServiceManager} from 'nestjs-cls';
+import {GROUP_ARTICLE, GROUP_ARTICLE_LIST} from '@/articles/consts';
+import {ValidateNested} from 'class-validator';
 
 @Entity()
 export class Article {
+  @Exclude()
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Exclude()
   @Column({type: 'bigint', nullable: false})
   authorId: bigint;
 
+  @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
+  @ValidateNested()
   @Transform((data) => {
     const cls = ClsServiceManager.getClsService();
     const currentUser = cls.get('user');
@@ -32,18 +38,22 @@ export class Article {
   })
   @ManyToOne(() => User)
   @JoinColumn({name: 'authorId'})
+  @Type(() => User)
   author: User;
 
+  @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
   @Column({type: 'text'})
   body: string;
 
-
+  @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
   @Column({type: 'text'})
   description: string;
 
+  @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
   @Column({unique: true})
   slug: string;
 
+  @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
   @Column({unique: true})
   title: string;
 
@@ -77,19 +87,19 @@ export class Article {
   })
   tags?: Tag[];
 
-  @Expose()
+  @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
   get favorited(): boolean {
     const cls = ClsServiceManager.getClsService();
     const currentUser = cls.get('user');
     return this.users.some((item) => item.id === currentUser?.id);
   }
 
-  @Expose()
+  @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
   get favoritesCount(): number {
     return this.users.length;
   }
 
-  @Expose()
+  @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
   get tagList(): string[] {
     return this.tags?.map((tag) => tag.name);
   }

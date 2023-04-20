@@ -8,8 +8,8 @@ import {LoginDto} from './dto/login.dto';
 import {RegisterDto} from './dto/register.dto';
 import {UserService} from '@/user/user.service';
 import {HashService} from '@/shared/services/hash.service';
-import {RegisterResponseDto} from '@/auth/dto/register-response.dto';
 import {JwtService} from '@/auth/services/jwt.service';
+import {User} from '@/user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -20,14 +20,22 @@ export class AuthService {
   ) {}
 
   async register(payload: RegisterDto) {
+    const {passwordConfirmation, password: rawPassword, ...data} = payload;
+
+    if (passwordConfirmation !== rawPassword) {
+      throw new UnprocessableEntityException('Password mismatch');
+    }
+
     const password = this.hashService.hash(payload.password);
     const saved = await this.userService.save({
-      ...payload,
+      ...data,
       password,
-      isAmbassador: false,
     });
+
     const token = await this.jwtService.signAsync(payload);
-    return new RegisterResponseDto({...saved, token});
+    const user = new User();
+    Object.assign(user, {...saved, token});
+    return user;
   }
 
   async login(payload: LoginDto) {
@@ -42,31 +50,13 @@ export class AuthService {
     const {password, ...user} = response;
 
     this.checkPassword(payload.password, password);
+    const authUser = new User();
 
-    return {
+    Object.assign(authUser, {
       ...user,
       token: await this.jwtService.signAsync({id: user.id}),
-    };
-  }
-
-  async getCurrentUser(token: string) {
-    const {id} = await this.parseUserFromJwt(token);
-
-    return await this.userService.findOne(id);
-  }
-
-  async updateUserInfo(token, payload) {
-    const {id} = await this.parseUserFromJwt(token);
-
-    await this.userService.update(id, payload);
-
-    return await this.userService.findOne(id);
-  }
-
-  async parseUserFromJwt(token) {
-    return await this.jwtService.verifyAsync(
-      token.replace('Bearer', '').trim(),
-    );
+    });
+    return authUser;
   }
 
   checkPassword(password, hash) {
