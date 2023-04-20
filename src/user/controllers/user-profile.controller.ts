@@ -22,6 +22,9 @@ export class UserProfileController {
   }
 
   @Put('me')
+  @SerializeOptions({
+    groups: [GROUP_USER_PROFILE],
+  })
   async updateProfile(@Body() body) {
     return await this.profileService.updateProfile(body);
   }
