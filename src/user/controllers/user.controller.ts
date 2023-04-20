@@ -7,9 +7,9 @@ import {
   Param,
   SerializeOptions,
 } from '@nestjs/common';
-import {UserService} from './user.service';
-import {CreateUserDto} from './dto/create-user.dto';
-import {UpdateUserDto} from './dto/update-user.dto';
+import {UserService} from '../services/user.service';
+import {CreateUserDto} from '../dto/create-user.dto';
+import {UpdateUserDto} from '../dto/update-user.dto';
 import {GROUP_ALL_USERS, GROUP_USER} from '@/user/consts';
 @Controller('users')
 export class UserController {

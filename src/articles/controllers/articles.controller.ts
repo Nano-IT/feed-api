@@ -8,8 +8,6 @@ import {
   Query,
   Put,
   SerializeOptions,
-  UseInterceptors,
-  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import {ArticlesService} from '@/articles/services/articles.service';
 import {CreateArticleDto} from '@/articles/dto/create-article.dto';
@@ -18,7 +16,6 @@ import {GROUP_ARTICLE, GROUP_ARTICLE_LIST} from '@/articles/consts';
 import {GROUP_USER_PROFILE} from '@/user/consts';
 
 @Controller('articles')
-@UseInterceptors(ClassSerializerInterceptor)
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
@@ -26,12 +23,14 @@ export class ArticlesController {
     groups: [GROUP_ARTICLE],
   })
   @Post()
-  async create(@Body() article: CreateArticleDto & {tagList: string}) {
+  async create(@Body() article: CreateArticleDto) {
     const {title, description, body, tagList} = article;
-    return await this.articlesService.create(
-      {title, description, body},
+    return await this.articlesService.create({
+      title,
+      description,
+      body,
       tagList,
-    );
+    });
   }
 
   @SerializeOptions({

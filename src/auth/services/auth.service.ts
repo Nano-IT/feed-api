@@ -4,9 +4,9 @@ import {
   Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import {LoginDto} from './dto/login.dto';
-import {RegisterDto} from './dto/register.dto';
-import {UserService} from '@/user/user.service';
+import {LoginDto} from '../dto/login.dto';
+import {RegisterDto} from '../dto/register.dto';
+import {UserService} from '@/user/services/user.service';
 import {HashService} from '@/shared/services/hash.service';
 import {JwtService} from '@/auth/services/jwt.service';
 import {User} from '@/user/entities/user.entity';

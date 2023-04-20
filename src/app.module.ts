@@ -5,7 +5,6 @@ import {AuthModule} from './auth/auth.module';
 import {ArticlesModule} from './articles/articles.module';
 import {TagsModule} from './tags/tags.module';
 import {ConfigModule, ConfigService} from '@nestjs/config';
-import {ProfileModule} from './profile/profile.module';
 import {ArticleCommentModule} from './article-comment/article-comment.module';
 import {TypeormConfigService} from '@/shared/services/typeorm-config.service';
 import {DataSource} from 'typeorm';
@@ -28,7 +27,6 @@ import {APP_GUARD} from '@nestjs/core';
     AuthModule,
     ArticlesModule,
     TagsModule,
-    ProfileModule,
     ArticleCommentModule,
     ClsModule.forRoot({
       global: true,

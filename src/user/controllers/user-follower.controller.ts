@@ -1,9 +1,9 @@
 import {Controller, Post, Param, Delete} from '@nestjs/common';
-import {ProfileFollowService} from '@/profile/services/profile-follow.service';
+import {UserFollowerService} from '@/user/services/user-follower.service';
 
 @Controller('profiles/:username/follow')
-export class ProfileFollowController {
-  constructor(private readonly profileFollowService: ProfileFollowService) {}
+export class UserFollowerController {
+  constructor(private readonly profileFollowService: UserFollowerService) {}
 
   @Post()
   follow(@Param('username') username: string) {

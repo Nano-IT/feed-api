@@ -18,11 +18,12 @@ export class ArticlesService {
     private cls: ClsService,
   ) {}
 
-  async create(createArticleDto: CreateArticleDto, tagList: string) {
+  async create(createArticleDto: CreateArticleDto) {
     const currentUser = this.cls.get('user');
+    const {tagList, ...payload} = createArticleDto;
     const slug = this.utilsService.createSlug(createArticleDto.title);
     const created = await this.articleRepository.create({
-      ...createArticleDto,
+      ...payload,
       slug,
     });
     if (tagList) {

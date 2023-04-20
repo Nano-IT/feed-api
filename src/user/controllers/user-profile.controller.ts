@@ -7,11 +7,11 @@ import {
   SerializeOptions,
 } from '@nestjs/common';
 import {GROUP_USER_PROFILE} from '@/user/consts';
-import {ProfileService} from '@/profile/services/profile.service';
+import {UserProfileService} from '@/user/services/user-profile.service';
 
 @Controller('profiles')
-export class ProfileController {
-  constructor(private readonly profileService: ProfileService) {}
+export class UserProfileController {
+  constructor(private readonly profileService: UserProfileService) {}
 
   @Get('me')
   @SerializeOptions({

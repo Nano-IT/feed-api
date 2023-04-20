@@ -12,4 +12,7 @@ export class CreateArticleDto {
   @IsNotEmpty()
   @IsString()
   title: string;
+
+  @IsString()
+  tagList: string;
 }

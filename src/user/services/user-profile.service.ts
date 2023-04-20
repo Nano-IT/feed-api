@@ -1,9 +1,9 @@
 import {Injectable} from '@nestjs/common';
-import {UserService} from '@/user/user.service';
+import {UserService} from '@/user/services/user.service';
 import {ClsService} from 'nestjs-cls';
 
 @Injectable()
-export class ProfileService {
+export class UserProfileService {
   constructor(private userService: UserService, private cls: ClsService) {}
 
   async getProfile(username: string) {

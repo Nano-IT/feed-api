@@ -3,7 +3,7 @@ import {PassportStrategy} from '@nestjs/passport';
 import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
 import {User} from '@/user/entities/user.entity';
-import {UserService} from '@/user/user.service';
+import {UserService} from '@/user/services/user.service';
 import {ClsService} from 'nestjs-cls';
 
 @Injectable()
