@@ -37,7 +37,8 @@ export class Article {
   @Column({type: 'text'})
   body: string;
 
-  @Column({type: 'varchar'})
+
+  @Column({type: 'text'})
   description: string;
 
   @Column({unique: true})
