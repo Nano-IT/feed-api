@@ -6,9 +6,18 @@ import {ValidationExceptionFilter} from '@/shared/filters/validation.filter';
 import {ValidationException} from '@/shared/exceptions/validation.exception';
 import {ClsMiddleware} from 'nestjs-cls';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
+import {ExpressAdapter, NestExpressApplication} from '@nestjs/platform-express';
+import * as express from 'express';
+import * as functions from 'firebase-functions';
+const server: express.Express = express();
+
+export const createNestServer = async (expressInstance: express.Express) => {
+  const adapter = new ExpressAdapter(expressInstance);
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    adapter,
+    {},
+  );
   app.useGlobalFilters(
     new GlobalExceptionFilter(),
     new ValidationExceptionFilter(),
@@ -27,6 +36,9 @@ async function bootstrap() {
       /* useEnterWith: true */
     }).use,
   );
-  await app.listen(3000);
-}
-bootstrap();
+  return app.init();
+};
+createNestServer(server)
+  .then(() => console.log('Nest Ready'))
+  .catch((err) => console.error('Nest broken', err));
+export const api: functions.HttpsFunction = functions.https.onRequest(server);
