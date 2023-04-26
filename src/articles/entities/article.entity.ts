@@ -88,19 +88,22 @@ export class Article {
   tags?: Tag[];
 
   @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
-  get favorited(): boolean {
+  @Transform((data) => {
     const cls = ClsServiceManager.getClsService();
     const currentUser = cls.get('user');
-    return this.users.some((item) => item.id === currentUser?.id);
-  }
+    return data.obj.users.some((item) => item.id === currentUser?.id);
+  })
+  favorited: boolean;
 
   @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
-  get favoritesCount(): number {
-    return this.users.length;
-  }
+  @Transform((data) => {
+    return data.obj.users.length;
+  })
+  favoritesCount: number;
 
   @Expose({groups: [GROUP_ARTICLE_LIST, GROUP_ARTICLE]})
-  get tagList(): string[] {
-    return this.tags?.map((tag) => tag.name);
-  }
+  @Transform((data) => {
+    return data.obj.tags?.map((tag) => tag.name);
+  })
+  tagList: string[];
 }

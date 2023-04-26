@@ -36,8 +36,10 @@ export const createNestServer = async (expressInstance: express.Express) => {
       /* useEnterWith: true */
     }).use,
   );
+  await app.listen(4000);
   return app.init();
 };
+
 createNestServer(server)
   .then(() => console.log('Nest Ready'))
   .catch((err) => console.error('Nest broken', err));

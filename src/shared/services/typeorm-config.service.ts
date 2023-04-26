@@ -8,14 +8,16 @@ export class TypeormConfigService implements TypeOrmOptionsFactory {
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
     return {
-      type: 'postgres',
-      host: this.configService.get('MYSQL_HOST'),
-      port: this.configService.get('MYSQL_PORT'),
-      username: this.configService.get('MYSQL_USER'),
-      password: this.configService.get('MYSQL_PASSWORD'),
-      database: this.configService.get('MYSQL_DATABASE'),
+      type: 'mysql',
+      host: this.configService.getOrThrow('MYSQL_HOST'),
+      port: this.configService.getOrThrow('MYSQL_PORT'),
+      username: this.configService.getOrThrow('MYSQL_USER'),
+      password: this.configService.getOrThrow('MYSQL_PASSWORD'),
+      database: this.configService.getOrThrow('MYSQL_DATABASE'),
       autoLoadEntities: true,
       synchronize: true,
+      logger: 'file',
+      logging: true,
     };
   }
 }

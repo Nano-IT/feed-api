@@ -14,7 +14,6 @@ import {CreateArticleDto} from '@/articles/dto/create-article.dto';
 import {UpdateArticleDto} from '@/articles/dto/update-article.dto';
 import {GROUP_ARTICLE, GROUP_ARTICLE_LIST} from '@/articles/consts';
 import {GROUP_USER_PROFILE} from '@/user/consts';
-import {Public} from '@/shared/decorators/public';
 
 @Controller('articles')
 export class ArticlesController {
@@ -38,7 +37,6 @@ export class ArticlesController {
     groups: [GROUP_ARTICLE_LIST, GROUP_USER_PROFILE],
   })
   @Get()
-  @Public()
   findAll(
     @Query('limit') take = 10,
     @Query('offset') skip = 0,
@@ -66,7 +64,6 @@ export class ArticlesController {
   @SerializeOptions({
     groups: [GROUP_ARTICLE, GROUP_USER_PROFILE],
   })
-  @Public()
   findOne(@Param('slug') slug: string) {
     return this.articlesService.findOne(slug);
   }

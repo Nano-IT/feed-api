@@ -36,7 +36,6 @@ export class ArticlesService {
 
   async findAll({skip, take, favorited, author, tag = ''}, feed = false) {
     let where = {};
-    const currentUser = this.cls.get('user');
 
     if (favorited) {
       where = {
@@ -56,6 +55,8 @@ export class ArticlesService {
     }
 
     if (feed) {
+      const currentUser = this.cls.get('user');
+
       where = {
         ...where,
         users: {
@@ -83,13 +84,12 @@ export class ArticlesService {
         order: {id: 'DESC'},
         relations: {
           author: true,
-          users: {
-            followers: true,
-          },
+          users: true,
           tags: true,
         },
       },
     );
+
     return {
       articles,
       articlesCount,
