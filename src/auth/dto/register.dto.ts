@@ -1,5 +1,5 @@
 import {IsEmail, IsNotEmpty, Length} from 'class-validator';
-import {Match} from '@/shared/decorators/match.validation';
+import {Match} from '@/shared/validation-rules/match.validation';
 
 export class RegisterDto {
   @Length(2, 128)

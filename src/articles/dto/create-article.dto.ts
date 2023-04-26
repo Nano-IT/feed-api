@@ -9,9 +9,10 @@ export class CreateArticleDto {
   @IsString()
   description: string;
 
-  tagList: string;
-
   @IsNotEmpty()
   @IsString()
   title: string;
+
+  @IsString()
+  tagList: string;
 }

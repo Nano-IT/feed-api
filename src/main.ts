@@ -1,36 +1,46 @@
 import {NestFactory, Reflector} from '@nestjs/core';
 import {AppModule} from './app.module';
-import {
-  ClassSerializerInterceptor,
-  HttpException,
-  HttpStatus,
-  ValidationPipe,
-} from '@nestjs/common';
+import {ClassSerializerInterceptor, ValidationPipe} from '@nestjs/common';
+import {GlobalExceptionFilter} from '@/shared/filters/global-error-handler.filter';
+import {ValidationExceptionFilter} from '@/shared/filters/validation.filter';
+import {ValidationException} from '@/shared/exceptions/validation.exception';
+import {ClsMiddleware} from 'nestjs-cls';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
+import {ExpressAdapter, NestExpressApplication} from '@nestjs/platform-express';
+import * as express from 'express';
+import * as functions from 'firebase-functions';
+const server: express.Express = express();
+
+export const createNestServer = async (expressInstance: express.Express) => {
+  const adapter = new ExpressAdapter(expressInstance);
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    adapter,
+    {},
+  );
+  app.useGlobalFilters(
+    new GlobalExceptionFilter(),
+    new ValidationExceptionFilter(),
+  );
   app.useGlobalPipes(
     new ValidationPipe({
-      exceptionFactory: (errors) => {
-        const validationErrors = errors.reduce(
-          (acc, {property, constraints}) => {
-            acc[property] = Object.values(constraints);
-            return acc;
-          },
-          {},
-        );
-        return new HttpException(
-          {errors: validationErrors},
-          HttpStatus.UNPROCESSABLE_ENTITY,
-        );
-      },
+      exceptionFactory: (errors) => new ValidationException(errors),
     }),
   );
   app.enableCors({
     origin: '*',
   });
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-  await app.listen(3000);
-}
-bootstrap();
+  app.use(
+    new ClsMiddleware({
+      /* useEnterWith: true */
+    }).use,
+  );
+  await app.listen(4000);
+  return app.init();
+};
+
+createNestServer(server)
+  .then(() => console.log('Nest Ready'))
+  .catch((err) => console.error('Nest broken', err));
+export const api: functions.HttpsFunction = functions.https.onRequest(server);

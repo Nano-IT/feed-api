@@ -7,28 +7,35 @@ import {
   Delete,
   Query,
   Put,
+  SerializeOptions,
 } from '@nestjs/common';
 import {ArticlesService} from '@/articles/services/articles.service';
 import {CreateArticleDto} from '@/articles/dto/create-article.dto';
 import {UpdateArticleDto} from '@/articles/dto/update-article.dto';
-import {RequestUser} from '@/shared/decorators/request-user.decorator';
-import {User} from '@/user/entities/user.entity';
-import {Public} from '@/shared/decorators/public';
+import {GROUP_ARTICLE, GROUP_ARTICLE_LIST} from '@/articles/consts';
+import {GROUP_USER_PROFILE} from '@/user/consts';
 
 @Controller('articles')
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
+  @SerializeOptions({
+    groups: [GROUP_ARTICLE],
+  })
   @Post()
-  create(@Body() article: CreateArticleDto, @RequestUser() user) {
+  async create(@Body() article: CreateArticleDto) {
     const {title, description, body, tagList} = article;
-    return this.articlesService.create(
-      {title, description, body, tagList},
-      user,
-    );
+    return await this.articlesService.create({
+      title,
+      description,
+      body,
+      tagList,
+    });
   }
 
-  @Public()
+  @SerializeOptions({
+    groups: [GROUP_ARTICLE_LIST, GROUP_USER_PROFILE],
+  })
   @Get()
   findAll(
     @Query('limit') take = 10,
@@ -36,41 +43,41 @@ export class ArticlesController {
     @Query('author') author,
     @Query('favorited') favorited,
     @Query('tag') tag,
-    @RequestUser() user,
   ) {
-    return this.articlesService.findAll(
-      {take, skip, author, favorited, tag},
-      user,
-    );
+    return this.articlesService.findAll({take, skip, author, favorited, tag});
   }
 
+  @SerializeOptions({
+    groups: [GROUP_ARTICLE_LIST, GROUP_USER_PROFILE],
+  })
   @Get('/feed')
   feed(
     @Query('limit') take = 10,
     @Query('offset') skip = 0,
     @Query('author') author,
     @Query('favorited') favorited,
-    @RequestUser() user,
   ) {
-    return this.articlesService.findAll(
-      {take, skip, author, favorited},
-      user,
-      true,
-    );
+    return this.articlesService.findAll({take, skip, author, favorited}, true);
   }
 
-  @Public()
   @Get(':slug')
-  findOne(@Param('slug') slug: string, @RequestUser() user: User) {
-    return this.articlesService.findOne(slug, user);
+  @SerializeOptions({
+    groups: [GROUP_ARTICLE, GROUP_USER_PROFILE],
+  })
+  findOne(@Param('slug') slug: string) {
+    return this.articlesService.findOne(slug);
   }
 
   @Put(':slug')
+  @SerializeOptions({
+    groups: [GROUP_ARTICLE, GROUP_USER_PROFILE],
+  })
   update(
     @Param('slug') slug: string,
-    @Body() updateArticleDto: UpdateArticleDto,
+    @Body() body: UpdateArticleDto & {tagList: string},
   ) {
-    return this.articlesService.update(slug, updateArticleDto);
+    const {tagList, ...payload} = body;
+    return this.articlesService.update(slug, payload, tagList);
   }
 
   @Delete(':slug')

@@ -1,35 +1,34 @@
 import {Injectable} from '@nestjs/common';
-import {UserService} from '@/user/user.service';
-import {User} from '@/user/entities/user.entity';
+import {UserService} from '@/user/services/user.service';
+import {ClsService} from 'nestjs-cls';
 
 @Injectable()
-export class ProfileFollowService {
-  constructor(private userService: UserService) {}
+export class UserFollowerService {
+  constructor(private userService: UserService, private cls: ClsService) {}
 
-  async follow(username: string, userId: number) {
+  async follow(username: string) {
     const user = await this.userService.findOne({
       where: {username},
       relations: {
         followers: true,
       },
     });
-    const follower = new User();
-    follower.id = userId;
-    user.followers.push(follower);
+    const currentUser = this.cls.get('user');
+    user.followers.push(currentUser);
     await this.userService.save(user);
     return {};
   }
 
-  async unfollow(username: string, userId: number) {
+  async unfollow(username: string) {
     const user = await this.userService.findOne({
       where: {username},
       relations: {
         followers: true,
       },
     });
-
+    const currentUser = this.cls.get('user');
     user.followers = user.followers.filter(
-      (follower) => follower.id !== userId,
+      (follower) => follower.username !== currentUser.username,
     );
     await this.userService.save(user);
     return {};

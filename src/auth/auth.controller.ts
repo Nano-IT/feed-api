@@ -1,9 +1,9 @@
-import {Controller, Post, Body, Get, Req, Patch} from '@nestjs/common';
-import {AuthService} from './auth.service';
+import {Controller, Post, Body, SerializeOptions} from '@nestjs/common';
+import {AuthService} from './services/auth.service';
 import {RegisterDto} from './dto/register.dto';
 import {LoginDto} from './dto/login.dto';
 import {Public} from '@/shared/decorators/public';
-import {Request} from 'express';
+import {GROUP_USER_PROFILE} from '@/user/consts';
 
 @Controller()
 export class AuthController {
@@ -11,32 +11,19 @@ export class AuthController {
 
   @Public()
   @Post('register')
+  @SerializeOptions({
+    groups: [GROUP_USER_PROFILE],
+  })
   register(@Body() body: RegisterDto) {
     return this.authService.register(body);
   }
 
   @Public()
   @Post('login')
+  @SerializeOptions({
+    groups: [GROUP_USER_PROFILE],
+  })
   login(@Body() body: LoginDto) {
     return this.authService.login(body);
-  }
-
-  @Get('admin/user')
-  async authenticatedUser(@Req() request: Request) {
-    return this.authService.getCurrentUser(request.header('authorization'));
-  }
-
-  @Patch('admin/info')
-  async updateProfile(
-    @Req() request: Request,
-    @Body('email') email,
-    @Body('firstName') firstName,
-    @Body('lastName') lastName,
-  ) {
-    return this.authService.updateUserInfo(request.header('authorization'), {
-      firstName,
-      lastName,
-      email,
-    });
   }
 }

@@ -2,15 +2,16 @@ import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {Article} from '@/articles/entities/article.entity';
 import {Repository} from 'typeorm';
-import {User} from '@/user/entities/user.entity';
+import {ClsService} from 'nestjs-cls';
 
 @Injectable()
 export class ArticleFavoriteService {
   constructor(
     @InjectRepository(Article) private articleRepository: Repository<Article>,
+    private clsService: ClsService,
   ) {}
 
-  async addFavoriteArticle(slug: string, user: User) {
+  async addFavoriteArticle(slug: string) {
     const article = await this.articleRepository.findOne({
       where: {slug},
       relations: {
@@ -18,24 +19,23 @@ export class ArticleFavoriteService {
       },
     });
 
-    if (!article.users.some((item) => item.id === user.id)) {
-      const newUser = new User();
-      newUser.id = user.id;
-      article.users.push(newUser);
+    const currentUser = this.clsService.get('user');
+
+    if (!article.users.some((item) => item.id === currentUser.id)) {
+      article.users.push(currentUser);
     }
-    await this.articleRepository.save(article);
-    return article;
+    return await this.articleRepository.save(article);
   }
 
-  async removeFromFavorites(slug: string, user) {
+  async removeFromFavorites(slug: string) {
     const article = await this.articleRepository.findOne({
       where: {slug},
       relations: {
         users: true,
       },
     });
-    article.users = article.users.filter((item) => item.id !== user.id);
-    await this.articleRepository.save(article);
-    return article;
+    const currentUser = this.clsService.get('user');
+    article.users = article.users.filter((item) => item.id !== currentUser.id);
+    return await this.articleRepository.save(article);
   }
 }

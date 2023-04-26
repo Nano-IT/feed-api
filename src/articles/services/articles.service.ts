@@ -4,10 +4,10 @@ import {InjectRepository} from '@nestjs/typeorm';
 import {Article} from '@/articles/entities/article.entity';
 import {Repository} from 'typeorm';
 import {UtilsService} from '@/shared/services/utils.service';
-import {CreateArticleDto} from '@/articles/dto/create-article.dto';
-import {User} from '@/user/entities/user.entity';
 import {Tag} from '@/tags/entities/tag.entity';
 import {TagsService} from '@/tags/tags.service';
+import {ClsService} from 'nestjs-cls';
+import {CreateArticleDto} from '@/articles/dto/create-article.dto';
 
 @Injectable()
 export class ArticlesService {
@@ -15,23 +15,26 @@ export class ArticlesService {
     @InjectRepository(Article) private articleRepository: Repository<Article>,
     private utilsService: UtilsService,
     private tagsService: TagsService,
+    private cls: ClsService,
   ) {}
 
-  async create(createArticleDto: CreateArticleDto, user) {
+  async create(createArticleDto: CreateArticleDto) {
+    const currentUser = this.cls.get('user');
+    const {tagList, ...payload} = createArticleDto;
     const slug = this.utilsService.createSlug(createArticleDto.title);
     const created = await this.articleRepository.create({
-      ...createArticleDto,
+      ...payload,
       slug,
     });
-    created.author = user;
-    return this.articleRepository.save(created);
+    if (tagList) {
+      created.tags = await this.updateTags(tagList);
+    }
+    created.authorId = currentUser.id;
+    const response = await this.articleRepository.save(created);
+    return await this.findOne(response.slug);
   }
 
-  async findAll(
-    {skip, take, favorited, author, tag = ''},
-    currentUser,
-    feed = false,
-  ) {
+  async findAll({skip, take, favorited, author, tag = ''}, feed = false) {
     let where = {};
 
     if (favorited) {
@@ -52,6 +55,8 @@ export class ArticlesService {
     }
 
     if (feed) {
+      const currentUser = this.cls.get('user');
+
       where = {
         ...where,
         users: {
@@ -70,6 +75,7 @@ export class ArticlesService {
         },
       };
     }
+
     const [articles, articlesCount] = await this.articleRepository.findAndCount(
       {
         skip,
@@ -78,28 +84,20 @@ export class ArticlesService {
         order: {id: 'DESC'},
         relations: {
           author: true,
-          users: {
-            followers: true,
-          },
+          users: true,
           tags: true,
         },
       },
     );
 
     return {
-      articles: articles.map((item) => {
-        return {
-          ...item,
-          favorited: item.users.some((item) => item.id === currentUser?.id),
-          favoritesCount: item.users.length,
-        };
-      }),
+      articles,
       articlesCount,
     };
   }
 
-  async findOne(slug: string, currentUser: User) {
-    const article = await this.articleRepository.findOneOrFail({
+  async findOne(slug: string) {
+    return await this.articleRepository.findOneOrFail({
       where: {slug},
       relations: {
         author: {
@@ -109,22 +107,9 @@ export class ArticlesService {
         tags: true,
       },
     });
-
-    return {
-      ...article,
-      favorited: article.users.some((item) => item.id === currentUser?.id),
-      favoritesCount: article.users.length,
-      tagList: article.tags.map(({name}) => name),
-      author: {
-        ...article.author,
-        following: article.author.followers?.some(
-          (item) => item.id === currentUser?.id,
-        ),
-      },
-    };
   }
 
-  async update(slug: string, article: UpdateArticleDto) {
+  async update(slug: string, article: UpdateArticleDto, tagList) {
     const foundedArticle: Article = await this.articleRepository.findOneOrFail({
       where: {slug},
       relations: {
@@ -141,15 +126,19 @@ export class ArticlesService {
       foundedArticle.slug = this.utilsService.createSlug(article.title);
     }
 
-    if (article.tagList) {
-      foundedArticle.tags = await this.updateTags(article.tagList);
+    if (article.body) {
+      foundedArticle.body = article.body;
     }
 
-    await this.articleRepository.save(foundedArticle);
-    return {
-      ...foundedArticle,
-      tagList: foundedArticle.tags.map(({name}) => name),
-    };
+    if (article.description) {
+      foundedArticle.description = article.description;
+    }
+
+    if (tagList) {
+      foundedArticle.tags = await this.updateTags(tagList);
+    }
+
+    return await this.articleRepository.save(foundedArticle);
   }
 
   async remove(slug: string) {
