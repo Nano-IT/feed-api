@@ -5,19 +5,10 @@ import {GlobalExceptionFilter} from '@/shared/filters/global-error-handler.filte
 import {ValidationExceptionFilter} from '@/shared/filters/validation.filter';
 import {ValidationException} from '@/shared/exceptions/validation.exception';
 import {ClsMiddleware} from 'nestjs-cls';
+import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 
-import {ExpressAdapter, NestExpressApplication} from '@nestjs/platform-express';
-import * as express from 'express';
-import * as functions from 'firebase-functions';
-const server: express.Express = express();
-
-export const createNestServer = async (expressInstance: express.Express) => {
-  const adapter = new ExpressAdapter(expressInstance);
-  const app = await NestFactory.create<NestExpressApplication>(
-    AppModule,
-    adapter,
-    {},
-  );
+export const createServer = async () => {
+  const app = await NestFactory.create(AppModule, {});
   app.useGlobalFilters(
     new GlobalExceptionFilter(),
     new ValidationExceptionFilter(),
@@ -36,11 +27,16 @@ export const createNestServer = async (expressInstance: express.Express) => {
       /* useEnterWith: true */
     }).use,
   );
+  const config = new DocumentBuilder()
+    .setTitle('Feed API')
+    .setDescription('The feed API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  app.setGlobalPrefix('api');
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
   await app.listen(4000);
-  return app.init();
 };
 
-createNestServer(server)
-  .then(() => console.log('Nest Ready'))
-  .catch((err) => console.error('Nest broken', err));
-export const api: functions.HttpsFunction = functions.https.onRequest(server);
+createServer();
