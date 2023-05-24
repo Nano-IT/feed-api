@@ -1,9 +1,10 @@
 import {Controller, Post, Param, Delete} from '@nestjs/common';
 import {ArticleFavoriteService} from '@/articles/services/article-favorite.service';
-import {ApiTags} from '@nestjs/swagger';
+import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
 
 @Controller('articles/:slug/favorite')
 @ApiTags('Article favorite')
+@ApiBearerAuth()
 export class ArticleFavoriteController {
   constructor(
     private readonly articlesFavoriteService: ArticleFavoriteService,

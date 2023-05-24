@@ -14,11 +14,12 @@ import {CreateArticleDto} from '@/articles/dto/create-article.dto';
 import {UpdateArticleDto} from '@/articles/dto/update-article.dto';
 import {GROUP_ARTICLE, GROUP_ARTICLE_LIST} from '@/articles/consts';
 import {GROUP_USER_PROFILE} from '@/user/consts';
-import {ApiResponse, ApiTags} from '@nestjs/swagger';
+import {ApiBearerAuth, ApiResponse, ApiTags} from '@nestjs/swagger';
 import {ArticleResponseDto} from '@/articles/dto/article-response.dto';
 
 @Controller('articles')
 @ApiTags('Articles')
+@ApiBearerAuth()
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 

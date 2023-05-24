@@ -8,10 +8,11 @@ import {
 } from '@nestjs/common';
 import {GROUP_USER_PROFILE} from '@/user/consts';
 import {UserProfileService} from '@/user/services/user-profile.service';
-import {ApiTags} from '@nestjs/swagger';
+import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
 
 @Controller('profiles')
 @ApiTags('User profile')
+@ApiBearerAuth()
 export class UserProfileController {
   constructor(private readonly profileService: UserProfileService) {}
 

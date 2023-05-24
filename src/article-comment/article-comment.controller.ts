@@ -11,11 +11,12 @@ import {ArticleCommentService} from './article-comment.service';
 import {CreateArticleCommentDto} from './dto/create-article-comment.dto';
 import {GROUP_ARTICLE_COMMENTS} from '@/article-comment/consts';
 import {GROUP_USER_PROFILE} from '@/user/consts';
-import {ApiResponse, ApiTags} from '@nestjs/swagger';
+import {ApiBearerAuth, ApiResponse, ApiTags} from '@nestjs/swagger';
 import {ArticleCommentResponseDto} from '@/article-comment/dto/article-comment-response.dto';
 
 @Controller('articles/:slug')
 @ApiTags('Article comments')
+@ApiBearerAuth()
 export class ArticleCommentController {
   constructor(private readonly articlesCommentService: ArticleCommentService) {}
 

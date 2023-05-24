@@ -1,9 +1,10 @@
 import {Controller, Get} from '@nestjs/common';
 import {TagsService} from './tags.service';
-import {ApiTags} from '@nestjs/swagger';
+import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
 
 @Controller('tags')
 @ApiTags('Article tags')
+@ApiBearerAuth()
 export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
 
