@@ -33,4 +33,9 @@ export class UserService {
     await this.userRepository.update({username}, updateUserDto);
     return await this.userRepository.findOneBy({username});
   }
+
+  async remove(username: string) {
+    const user = await this.userRepository.findOneByOrFail({username});
+    return await this.userRepository.remove(user);
+  }
 }

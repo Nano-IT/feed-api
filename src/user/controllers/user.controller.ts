@@ -46,4 +46,8 @@ export class UserController {
   ) {
     return this.userService.update(username, updateUserDto);
   }
+  @Patch(':username')
+  delete(@Param('username') username: string) {
+    return this.userService.remove(username);
+  }
 }
