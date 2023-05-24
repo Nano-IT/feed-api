@@ -31,12 +31,12 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get(':id')
+  @Get(':username')
   @SerializeOptions({
     groups: [GROUP_USER],
   })
-  findOne(@Param('id') id: string) {
-    return this.userService.findOneBy({id});
+  findOne(@Param('id') username: string) {
+    return this.userService.findOneBy({username});
   }
 
   @Patch(':username')

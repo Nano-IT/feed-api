@@ -13,6 +13,7 @@ import {GROUP_ALL_USERS, GROUP_USER, GROUP_USER_PROFILE} from '@/user/consts';
 
 @Entity()
 export class User {
+  @Exclude({toPlainOnly: true})
   @PrimaryGeneratedColumn({type: 'bigint'})
   id: bigint;
 

@@ -6,11 +6,13 @@ import {ValidationExceptionFilter} from '@/shared/filters/validation.filter';
 import {ValidationException} from '@/shared/exceptions/validation.exception';
 import {ClsMiddleware} from 'nestjs-cls';
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
+import {HttpExceptionFilter} from '@/shared/filters/http-exception.filter';
 
 export const createServer = async () => {
   const app = await NestFactory.create(AppModule, {});
   app.useGlobalFilters(
     new GlobalExceptionFilter(),
+    new HttpExceptionFilter(),
     new ValidationExceptionFilter(),
   );
   app.useGlobalPipes(
