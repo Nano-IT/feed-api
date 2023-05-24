@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   SerializeOptions,
+  Delete,
 } from '@nestjs/common';
 import {UserService} from '../services/user.service';
 import {CreateUserDto} from '../dto/create-user.dto';
@@ -46,7 +47,8 @@ export class UserController {
   ) {
     return this.userService.update(username, updateUserDto);
   }
-  @Patch(':username')
+
+  @Delete(':username')
   delete(@Param('username') username: string) {
     return this.userService.remove(username);
   }
